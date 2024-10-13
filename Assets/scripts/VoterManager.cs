@@ -230,6 +230,7 @@ public class District
     {
         int blockVotes = 0;
         int circleVotes = 0;
+        int result = 0;
         
         for(int a = 0; size > a; a++)
         {
@@ -245,15 +246,27 @@ public class District
 
         if(circleVotes > blockVotes)
         {
-            return 0;
+            result = 0;
         }
-
-        if(circleVotes == blockVotes)
+        else if(circleVotes == blockVotes)
         {
-            return 1;
+            result = 1;
+        }
+        else if(circleVotes < blockVotes)
+        {
+            result = 2;
+        }
+        else
+        {
+            Debug.Log(circleVotes + " and " + blockVotes + " broke trichotomy property somehow.");
         }
 
-        return 2;
+        for(int a = 0; size > a; a++)
+        {
+            voters[a].SetColor(result + 1);
+        }
+
+        return result;
     }
 
     public void Add(Voter addition)

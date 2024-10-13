@@ -8,7 +8,8 @@ public class Voter : MonoBehaviour
     public Color[] colors;
     public Sprite blockSprite;
     public Sprite circleSprite;
-    public Boundary[] bounds;
+    Boundary[] bounds;
+    Image image;
     Vector2 pos;
     District district;
     bool isBlock;
@@ -16,7 +17,7 @@ public class Voter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        image = GetComponent<Image>();
     }
 
     // Update is called once per frame
@@ -54,6 +55,11 @@ public class Voter : MonoBehaviour
         bounds[index] = boundary;
     }
 
+    public void SetColor(int index)
+    {
+        image.color = colors[index];
+    }
+
     public void SetDistrict(District inDistrict)
     {
         district = inDistrict;
@@ -62,6 +68,7 @@ public class Voter : MonoBehaviour
     public void ResetVariables()
     {
         district = null;
+        image.color = colors[0];
     }
 
     public Boundary GetBound(int index)
