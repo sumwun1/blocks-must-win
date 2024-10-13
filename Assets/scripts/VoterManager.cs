@@ -6,7 +6,8 @@ using TMPro;
 public class VoterManager : MonoBehaviour
 {
     public static VoterManager instance;
-    public bool[,] voterParties;
+    public bool[,] voterParties = { { false, true, true }, { true, false, false }, { true, false, false } };
+    public Canvas canvas;
     public GameObject voterPrefab;
     public GameObject boundaryPrefab;
     public GameObject panel;
@@ -25,35 +26,39 @@ public class VoterManager : MonoBehaviour
     {
         instance = this;
         SetState("how");
-        voters = new Voter[voterParties.Length,voterParties.GetLength(1)];
+        voters = new Voter[voterParties.GetLength(0),voterParties.GetLength(1)];
+        //Debug.Log(voterParties.Length + " " + voterParties.GetLength(1) + " " + voters.Length + " " + voters.GetLength(1));
         districts = new District[44];
-        float halfX = voterParties.Length * voterSize / 2;
+        float halfX = voterParties.GetLength(0) * voterSize / 2;
         float halfY = voterParties.GetLength(1) * voterSize / 2;
 
-        for (int a = 0; voterParties.Length > a; a++)
+        for (int a = 0; voterParties.GetLength(0) > a; a++)
         {
             for (int b = 0; voterParties.GetLength(1) > b; b++)
             {
                 GameObject voter = Instantiate(voterPrefab);
+                voter.transform.SetParent(canvas.transform, false);
                 voters[a,b] = voter.GetComponent<Voter>();
-                voters[a,b].Initialize(a * voterSize - halfX, b * voterSize - halfY, voterParties[a,b]);
+                voters[a,b].Initialize((a + 0.5f) * voterSize - halfX, (b + 0.5f) * voterSize - halfY, voterParties[a,b]);
             }
         }
 
-        for (int a = 0; voterParties.Length > a + 1; a++)
+        for (int a = 0; voterParties.GetLength(0) > a + 1; a++)
         {
             for (int b = 0; voterParties.GetLength(1) > b; b++)
             {
                 GameObject boundary = Instantiate(boundaryPrefab);
+                boundary.transform.SetParent(canvas.transform, false);
                 boundary.GetComponent<Boundary>().Initialize(voters[a,b], voters[a + 1,b], false);
             }
         }
 
-        for (int a = 0; voterParties.Length > a; a++)
+        for (int a = 0; voterParties.GetLength(0) > a; a++)
         {
             for (int b = 0; voterParties.GetLength(1) > b + 1; b++)
             {
                 GameObject boundary = Instantiate(boundaryPrefab);
+                boundary.transform.SetParent(canvas.transform, false);
                 boundary.GetComponent<Boundary>().Initialize(voters[a,b], voters[a,b + 1], true);
             }
         }
@@ -71,13 +76,14 @@ public class VoterManager : MonoBehaviour
     {
         if ("playing" == state)
         {
-            for (int a = 0; voters.Length > a; a++)
+            for (int a = 0; voters.GetLength(0) > a; a++)
             {
                 for (int b = 0; voters.GetLength(1) > b; b++)
                 {
                     if (!voters[a,b].InDistrict())
                     {
-                        districts[districtCount] = new District(voters[a,b]);
+                        //Debug.Log("about to create district " + districtCount);
+                        districts[districtCount] = new District(voters[a,b], districtCount);
                         districtCount++;
                     }
                 }
@@ -138,12 +144,14 @@ public class VoterManager : MonoBehaviour
 
     public void ResetVariables()
     {
+        districtCount = 0;
+        
         for(int a = 0; districts.Length > a; a++)
         {
             districts[a] = null;
         }
 
-        for(int a = 0; voters.Length > a; a++)
+        for(int a = 0; voters.GetLength(0) > a; a++)
         {
             for(int b = 0; voters.GetLength(1) > b; b++)
             {
@@ -194,11 +202,14 @@ public class District
     Voter[] voters;
     int size;
     int searchIndex;
+    int districtNumber;
     
-    public District(Voter starter)
+    public District(Voter starter, int inDistrictNumber)
     {
+        //Debug.Log("creating district " + inDistrictNumber);
         size = 0;
         searchIndex = 0;
+        districtNumber = inDistrictNumber;
         voters = new Voter[44];
         Add(starter);
 
@@ -207,12 +218,15 @@ public class District
             for(int a = 0; 4 > a; a++)
             {
                 Boundary bound = voters[searchIndex].GetBound(a);
+                //Debug.Log("bound exists: " + (null != bound));
 
                 if(null != bound)
                 {
+                    //Debug.Log("bound isn't district boundary: " + !bound.IsActive());
                     if (!bound.IsActive())
                     {
                         Voter addition = bound.GetOtherVoter(voters[searchIndex]);
+                        //Debug.Log("voter is in district " + addition.GetDistrictNumber());
 
                         if (!addition.InDistrict())
                         {
@@ -274,6 +288,11 @@ public class District
         voters[size] = addition;
         addition.SetDistrict(this);
         size++;
+    }
+
+    public int GetNumber()
+    {
+        return districtNumber;
     }
 
     public int GetSize()

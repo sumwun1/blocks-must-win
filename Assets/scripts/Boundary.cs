@@ -17,7 +17,7 @@ public class Boundary : MonoBehaviour
     void Start()
     {
         isActive = false;
-        image = GetComponent<Image>();
+        image = transform.GetChild(0).GetComponent<Image>();
     }
 
     // Update is called once per frame
@@ -37,7 +37,7 @@ public class Boundary : MonoBehaviour
 
         if (isVertical)
         {
-            //transform.eulerAngles += new Vector3(0, 0, 90);
+            GetComponent<RectTransform>().eulerAngles += new Vector3(0, 0, 90);
             voter0.SetBound(this, 1);
             voter1.SetBound(this, 3);
         }
@@ -58,12 +58,12 @@ public class Boundary : MonoBehaviour
 
         if(System.Object.ReferenceEquals(voter0, voter) && !System.Object.ReferenceEquals(voter1, voter))
         {
-            return voter0;
+            return voter1;
         }
 
         if (!System.Object.ReferenceEquals(voter0, voter) && System.Object.ReferenceEquals(voter1, voter))
         {
-            return voter1;
+            return voter0;
         }
 
         Debug.Log("neither voter matched the input.");

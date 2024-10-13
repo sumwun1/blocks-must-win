@@ -33,15 +33,15 @@ public class Voter : MonoBehaviour
         transform.SetParent(VoterManager.instance.panel.transform);
         pos = new Vector2(posX, posY);
         rect.anchoredPosition = pos;
-        SpriteRenderer childRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        Image childImage = transform.GetChild(0).GetComponent<Image>();
 
         if (isBlock)
         {
-            childRenderer.sprite = blockSprite;
+            childImage.sprite = blockSprite;
         }
         else
         {
-            childRenderer.sprite = circleSprite;
+            childImage.sprite = circleSprite;
         }
     }
 
@@ -68,7 +68,21 @@ public class Voter : MonoBehaviour
     public void ResetVariables()
     {
         district = null;
-        image.color = colors[0];
+        
+        if(null != image)
+        {
+            image.color = colors[0];
+        }
+    }
+
+    public int GetDistrictNumber()
+    {
+        if(null == district)
+        {
+            return -1;
+        }
+
+        return district.GetNumber();
     }
 
     public Boundary GetBound(int index)
