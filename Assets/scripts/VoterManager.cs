@@ -6,64 +6,40 @@ using TMPro;
 public class VoterManager : MonoBehaviour
 {
     public static VoterManager instance;
-    public bool[,] voterParties = { { false, true, true }, { true, false, false }, { true, false, false } };
+    public string[] levelNames;
     public Canvas canvas;
+    public GameObject levelSelectParent;
     public GameObject voterPrefab;
     public GameObject boundaryPrefab;
-    public GameObject panel;
+    //public GameObject panel;
+    public GameObject selectButton;
     public GameObject howPanel;
     public GameObject redistrictButton;
+    public Transform voterParent;
+    public TMP_Text topText;
     public TMP_Text statusText;
     public TMP_Text buttonText;
     public float voterSize;
     Voter[,] voters;
     District[] districts;
+    bool[,] voterParties;
     string state;
+    int level;
     int districtCount;
 
     // Start is called before the first frame update
     void Start()
     {
         instance = this;
-        SetState("how");
-        voters = new Voter[voterParties.GetLength(0),voterParties.GetLength(1)];
         //Debug.Log(voterParties.Length + " " + voterParties.GetLength(1) + " " + voters.Length + " " + voters.GetLength(1));
         districts = new District[44];
-        float halfX = voterParties.GetLength(0) * voterSize / 2;
-        float halfY = voterParties.GetLength(1) * voterSize / 2;
 
-        for (int a = 0; voterParties.GetLength(0) > a; a++)
+        for(int a = 0; levelSelectParent.transform.childCount > a; a++)
         {
-            for (int b = 0; voterParties.GetLength(1) > b; b++)
-            {
-                GameObject voter = Instantiate(voterPrefab);
-                voter.transform.SetParent(canvas.transform, false);
-                voters[a,b] = voter.GetComponent<Voter>();
-                voters[a,b].Initialize((a + 0.5f) * voterSize - halfX, (b + 0.5f) * voterSize - halfY, voterParties[a,b]);
-            }
+            levelSelectParent.transform.GetChild(a).GetChild(0).GetComponent<TMP_Text>().text = levelNames[a].Replace(' ', '\n');
         }
 
-        for (int a = 0; voterParties.GetLength(0) > a + 1; a++)
-        {
-            for (int b = 0; voterParties.GetLength(1) > b; b++)
-            {
-                GameObject boundary = Instantiate(boundaryPrefab);
-                boundary.transform.SetParent(canvas.transform, false);
-                boundary.GetComponent<Boundary>().Initialize(voters[a,b], voters[a + 1,b], false);
-            }
-        }
-
-        for (int a = 0; voterParties.GetLength(0) > a; a++)
-        {
-            for (int b = 0; voterParties.GetLength(1) > b + 1; b++)
-            {
-                GameObject boundary = Instantiate(boundaryPrefab);
-                boundary.transform.SetParent(canvas.transform, false);
-                boundary.GetComponent<Boundary>().Initialize(voters[a,b], voters[a,b + 1], true);
-            }
-        }
-
-        ResetVariables();
+        SetState("selecting");
     }
 
     // Update is called once per frame
@@ -95,7 +71,7 @@ public class VoterManager : MonoBehaviour
                 {
                     if (districts[a].GetSize() != districts[a + 1].GetSize())
                     {
-                        statusText.text = districts[a].GetSize() + " and " + districts[a + 1].GetSize() + " were 2 of your district sizes. All your districts must be the same size.";
+                        statusText.text = districts[a].GetSize() + " and " + districts[a + 1].GetSize() + " were two of your district sizes. All your districts must be the same size.";
                         SetState("lost");
                         return;
                     }
@@ -142,6 +118,48 @@ public class VoterManager : MonoBehaviour
         }
     }
 
+    public void StartLevel(int inLevel)
+    {
+        level = inLevel;
+        voterParties = GetVoterParties(inLevel);
+        voters = new Voter[voterParties.GetLength(0), voterParties.GetLength(1)];
+        float halfX = voterParties.GetLength(0) * voterSize / 2;
+        float halfY = voterParties.GetLength(1) * voterSize / 2;
+
+        for (int a = 0; voterParties.GetLength(0) > a; a++)
+        {
+            for (int b = 0; voterParties.GetLength(1) > b; b++)
+            {
+                GameObject voter = Instantiate(voterPrefab);
+                voter.transform.SetParent(voterParent, false);
+                voters[a, b] = voter.GetComponent<Voter>();
+                voters[a, b].Initialize((a + 0.5f) * voterSize - halfX, (b + 0.5f) * voterSize - halfY, voterParties[a, b]);
+            }
+        }
+
+        for (int a = 0; voterParties.GetLength(0) > a + 1; a++)
+        {
+            for (int b = 0; voterParties.GetLength(1) > b; b++)
+            {
+                GameObject boundary = Instantiate(boundaryPrefab);
+                boundary.transform.SetParent(voterParent, false);
+                boundary.GetComponent<Boundary>().Initialize(voters[a, b], voters[a + 1, b], false);
+            }
+        }
+
+        for (int a = 0; voterParties.GetLength(0) > a; a++)
+        {
+            for (int b = 0; voterParties.GetLength(1) > b + 1; b++)
+            {
+                GameObject boundary = Instantiate(boundaryPrefab);
+                boundary.transform.SetParent(canvas.transform, false);
+                boundary.GetComponent<Boundary>().Initialize(voters[a, b], voters[a, b + 1], true);
+            }
+        }
+
+        SetState("playing");
+    }
+
     public void ResetVariables()
     {
         districtCount = 0;
@@ -164,14 +182,24 @@ public class VoterManager : MonoBehaviour
     {
         state = inState;
 
-        if("how" != state)
+        /*if("how" != state)
         {
             howPanel.SetActive(false);
+        }*/
+        if ("selecting" == state)
+        {
+            topText.text = "Select a country";
+
+            foreach (Transform child in voterParent)
+            {
+                Destroy(child.gameObject);
+            }
         }
 
         if("playing" == state)
         {
             ResetVariables();
+            topText.text = levelNames[level];
             buttonText.text = "Redistrict";
         }
 
@@ -187,13 +215,27 @@ public class VoterManager : MonoBehaviour
         if("won" == state)
         {
             statusText.text = "You win.";
-            redistrictButton.SetActive(false);
         }
+
+        levelSelectParent.SetActive("selecting" == state);
+        selectButton.SetActive("selecting" != state);
+        redistrictButton.SetActive("selecting" != state && "won" != state);
+    }
+
+    public void SetHowActive(bool isActive)
+    {
+        howPanel.SetActive(isActive);
     }
 
     public string GetState()
     {
         return state;
+    }
+
+    public bool[,] GetVoterParties(int inLevel)
+    {
+        bool[,] output = { { false, true, true }, { true, false, false }, { true, false, false } };
+        return output;
     }
 }
 

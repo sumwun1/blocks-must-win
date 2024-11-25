@@ -32,7 +32,7 @@ public class Boundary : MonoBehaviour
         voter1 = inVoter1;
         isVertical = inIsVertical;
         RectTransform rect = GetComponent<RectTransform>();
-        transform.SetParent(VoterManager.instance.panel.transform);
+        transform.SetParent(VoterManager.instance.voterParent);
         rect.anchoredPosition = (voter0.GetPos() + voter1.GetPos()) / 2;
 
         if (isVertical)

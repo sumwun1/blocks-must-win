@@ -30,7 +30,7 @@ public class Voter : MonoBehaviour
     {
         isBlock = inIsBlock;
         RectTransform rect = GetComponent<RectTransform>();
-        transform.SetParent(VoterManager.instance.panel.transform);
+        transform.SetParent(VoterManager.instance.voterParent);
         pos = new Vector2(posX, posY);
         rect.anchoredPosition = pos;
         Image childImage = transform.GetChild(0).GetComponent<Image>();
