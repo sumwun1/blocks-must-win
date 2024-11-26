@@ -32,7 +32,7 @@ public class VoterManager : MonoBehaviour
     {
         instance = this;
         //Debug.Log(voterParties.Length + " " + voterParties.GetLength(1) + " " + voters.Length + " " + voters.GetLength(1));
-        districts = new District[44];
+        districts = new District[76];
 
         for(int a = 0; levelSelectParent.transform.childCount > a; a++)
         {
@@ -121,10 +121,20 @@ public class VoterManager : MonoBehaviour
     public void StartLevel(int inLevel)
     {
         level = inLevel;
-        voterParties = GetVoterParties(inLevel);
+        voterParties = GetVoterParties();
         voters = new Voter[voterParties.GetLength(0), voterParties.GetLength(1)];
-        float halfX = voterParties.GetLength(0) * voterSize / 2;
-        float halfY = voterParties.GetLength(1) * voterSize / 2;
+
+        if(8 > level)
+        {
+            voterSize = 72;
+        }
+        else
+        {
+            voterSize = 60;
+        }
+
+        float halfX = voterParties.GetLength(1) * voterSize / 2;
+        float halfY = voterParties.GetLength(0) * voterSize / 2;
 
         for (int a = 0; voterParties.GetLength(0) > a; a++)
         {
@@ -133,7 +143,7 @@ public class VoterManager : MonoBehaviour
                 GameObject voter = Instantiate(voterPrefab);
                 voter.transform.SetParent(voterParent, false);
                 voters[a, b] = voter.GetComponent<Voter>();
-                voters[a, b].Initialize((a + 0.5f) * voterSize - halfX, (b + 0.5f) * voterSize - halfY, voterParties[a, b]);
+                voters[a, b].Initialize((b + 0.5f) * voterSize - halfX, (a + 0.5f) * voterSize - halfY, voterSize, voterParties[a, b]);
             }
         }
 
@@ -143,7 +153,7 @@ public class VoterManager : MonoBehaviour
             {
                 GameObject boundary = Instantiate(boundaryPrefab);
                 boundary.transform.SetParent(voterParent, false);
-                boundary.GetComponent<Boundary>().Initialize(voters[a, b], voters[a + 1, b], false);
+                boundary.GetComponent<Boundary>().Initialize(voters[a, b], voters[a + 1, b], voterSize, true);
             }
         }
 
@@ -153,7 +163,7 @@ public class VoterManager : MonoBehaviour
             {
                 GameObject boundary = Instantiate(boundaryPrefab);
                 boundary.transform.SetParent(canvas.transform, false);
-                boundary.GetComponent<Boundary>().Initialize(voters[a, b], voters[a, b + 1], true);
+                boundary.GetComponent<Boundary>().Initialize(voters[a, b], voters[a, b + 1], voterSize, false);
             }
         }
 
@@ -232,10 +242,142 @@ public class VoterManager : MonoBehaviour
         return state;
     }
 
-    public bool[,] GetVoterParties(int inLevel)
+    public bool[,] GetVoterParties()
     {
-        bool[,] output = { { false, true, true }, { true, false, false }, { true, false, false } };
-        return output;
+        bool f = false;
+        bool t = true;
+
+        if (0 == level)
+        {
+            bool[,] output = {
+                { f, t, t },
+                { t, f, f },
+                { t, f, f }
+            };
+        
+            return output;
+        }
+        else if (1 == level)
+        {
+            bool[,] output = {
+                { t, f, t, f },
+                { f, f, f, t },
+                { t, t, t, f }
+            };
+
+            return output;
+        }
+        else if (2 == level)
+        {
+            bool[,] output = {
+                { f, f, t, t, f },
+                { t, f, t, f, t },
+                { t, f, f, f, f }
+            };
+
+            return output;
+        }
+        else if (3 == level)
+        {
+            bool[,] output = {
+                { f, t, t, f },
+                { t, t, f, t },
+                { t, f, f, t },
+                { f, f, t, f}
+            };
+
+            return output;
+        }
+        else if (4 == level)
+        {
+            bool[,] output = {
+                { t, f, f, t, f, t },
+                { f, t, t, f, f, f },
+                { f, f, t, t, t, f }
+            };
+
+            return output;
+        }
+        else if (5 == level)
+        {
+            bool[,] output = {
+                { f, f, t, f, t },
+                { f, t, f, t, f },
+                { f, f, t, f, f },
+                { t, t, t, t, f }
+            };
+
+            return output;
+        }
+        else if (6 == level)
+        {
+            bool[,] output = {
+                { f, t, f, t, f, f, f },
+                { f, f, t, t, f, t, f },
+                { t, f, t, f, f, f, t }
+            };
+
+            return output;
+        }
+        else if (7 == level)
+        {
+            bool[,] output = {
+                { f, f, t, f, t, f },
+                { t, t, t, t, f, f },
+                { f, f, f, t, f, t },
+                { f, f, t, t, t, f }
+            };
+
+            return output;
+        }
+        else if (8 == level)
+        {
+            bool[,] output = {
+                { f, t, f, t, t },
+                { f, f, f, f, f },
+                { t, f, t, f, t },
+                { f, t, t, f, f },
+                { f, t, f, f, f }
+            };
+
+            return output;
+        }
+        else if (9 == level)
+        {
+            bool[,] output = {
+                { f, f, t, f, f, f, t, t, f },
+                { t, f, t, f, t, t, t, f, f },
+                { f, t, f, t, f, t, f, t, f }
+            };
+
+            return output;
+        }
+        else if (10 == level)
+        {
+            bool[,] output = {
+                { f, t, f, f, f, f, t },
+                { f, t, t, f, t, t, f },
+                { f, f, t, t, f, f, f },
+                { f, t, f, t, t, t, f }
+            };
+
+            return output;
+        }
+        else if (11 == level)
+        {
+            bool[,] output = {
+                { f, t, t, f, f, f },
+                { f, t, f, t, f, t },
+                { t, f, f, t, f, t },
+                { t, f, f, f, t, f },
+                { f, f, t, f, t, f }
+            };
+
+            return output;
+        }
+
+        bool[,] output1 = { { f } };
+        return output1;
     }
 }
 

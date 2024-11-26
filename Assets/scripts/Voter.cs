@@ -26,13 +26,15 @@ public class Voter : MonoBehaviour
         
     }
 
-    public void Initialize(float posX, float posY, bool inIsBlock)
+    public void Initialize(float posX, float posY, float size, bool inIsBlock)
     {
         isBlock = inIsBlock;
         RectTransform rect = GetComponent<RectTransform>();
         transform.SetParent(VoterManager.instance.voterParent);
         pos = new Vector2(posX, posY);
         rect.anchoredPosition = pos;
+        rect.sizeDelta = new Vector2(size, size);
+        transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(size, size);
         Image childImage = transform.GetChild(0).GetComponent<Image>();
 
         if (isBlock)

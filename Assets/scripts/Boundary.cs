@@ -26,13 +26,15 @@ public class Boundary : MonoBehaviour
         
     }
 
-    public void Initialize(Voter inVoter0, Voter inVoter1, bool inIsVertical)
+    public void Initialize(Voter inVoter0, Voter inVoter1, float size, bool inIsVertical)
     {
         voter0 = inVoter0;
         voter1 = inVoter1;
         isVertical = inIsVertical;
         RectTransform rect = GetComponent<RectTransform>();
         transform.SetParent(VoterManager.instance.voterParent);
+        rect.sizeDelta = new Vector2(size, size);
+        transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(size / 6, size);
         rect.anchoredPosition = (voter0.GetPos() + voter1.GetPos()) / 2;
 
         if (isVertical)
